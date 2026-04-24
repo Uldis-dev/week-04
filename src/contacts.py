@@ -108,11 +108,6 @@ def search_contacts(contacts_list, name):
 
 
 if __name__ == "__main__":
-    # contact_list = load_contacts()
-    # add_contact(contact_list)
-    # save_contacts(contact_list)
-
-
     # 1. Pārbaude, vai ir ievadīti komandrindas argumenti
     if len(sys.argv) < 2:
         print("Lietošana: python contacts.py [add|list|search] [dati]")
@@ -125,10 +120,8 @@ if __name__ == "__main__":
     # 3. Komandas
     if command == "add":
         if len(sys.argv) == 4:
-            # Pievieno no komandrindas: python contacts.py add "Vārds" "Numurs"
             name = sys.argv[2]
             phone = sys.argv[3]
-            #contact_list.append({"name": name, "phone": phone})
             add_contact_argv(contact_list, name, phone)
             save_contacts(contact_list)
         else:
