@@ -2,21 +2,24 @@ import sys
 from storage import load_list, save_list
 from utils import count_units, calc_line_total, calc_grand_total
 
-def add_item(items, name, price):
+def add_item(items, name, qty, price):
     """
     Pievieno jaunu produktu sarakstam un saglabā izmaiņas failā.
     
     Args:
     items(list): Esošais iepirkumu saraksts.
     name(str): Produkta nosaukums.
+    qty(float): Produkta daudzums.
     price(str/float): Produkta cena.
     
     Returns:
     None
     """
-    items.append({"name": name, "price": price})
+    items.append({"name": name, "qty": qty, "price": price})
     save_list(items)
-    print(f"✓ Pievienots: {name} ({price}) EUR")
+    print(f"✓ Pievienots: {name} x {qty} ({price} EUR/gab.) = X EUR")
+
+    # ✓ Pievienots: Maize × 3 (1.20 EUR/gab.) = 3.60 EUR
 
 def show_list(items):
     """
@@ -49,10 +52,11 @@ def main():
 
     command = sys.argv[1].lower()    
 
-    if command == "add" and len(sys.argv) == 4:
+    if command == "add" and len(sys.argv) == 5:
         name = sys.argv[2]
-        price = sys.argv[3] 
-        add_item(items, name, price)       # Izsaucam pievienošanas funkciju  
+        qty = sys.argv[3] 
+        price = sys.argv[4] 
+        add_item(items, name, qty, price)       # Izsaucam pievienošanas funkciju  
 
     elif command == "list":
         show_list(items)        # Izsaucam izvades funkciju
