@@ -15,9 +15,11 @@ def add_item(items, name, qty, price):
     Returns:
     None
     """
-    items.append({"name": name, "qty": qty, "price": price})
+    new_item = {"name": name, "qty": qty, "price": price}
+    items.append(new_item)
     save_list(items)
-    print(f"✓ Pievienots: {name} x {qty} ({price} EUR/gab.) = X EUR")
+    line_total = calc_line_total(new_item)
+    print(f"✓ Pievienots: {name} x {qty} ({float(price):.2f} EUR/gab.) = {line_total:.2f} EUR")
 
     # ✓ Pievienots: Maize × 3 (1.20 EUR/gab.) = 3.60 EUR
 
