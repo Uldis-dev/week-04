@@ -1,5 +1,5 @@
 import sys
-from storage import load_list, save_list
+from storage import load_list, save_list, load_prices, save_prices, get_price, set_price
 from utils import count_units, calc_line_total, calc_grand_total
 
 def add_item(items, name, qty, price):
@@ -54,10 +54,51 @@ def main():
 
     command = sys.argv[1].lower()    
 
-    if command == "add" and len(sys.argv) == 5:
+    if command == "add" and len(sys.argv) >= 3:
         name = sys.argv[2]
-        qty = sys.argv[3] 
-        price = sys.argv[4] 
+        # --- DAUDZUMA PĀRBAUDE ---
+        try:
+            qty = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+            if qty <= 0:
+                print("Kļūda: Daudzumam jābūt lielākam par 0! Iestatīts uz 1.")
+                qty = 1
+        except ValueError:
+            print("Kļūda: Daudzumam jābūt veselam skaitlim! Iestatīts uz 1.")
+            qty = 1
+
+        price = get_price(name)
+
+        if price is not None:
+            # Scenārijs: JĀ, cena ir atrasta
+            print(f"Precei '{name}' atrasta cena: {price:.2f} EUR")
+            choice = input("[A]kceptēt vai [M]ainīt? ").lower()
+            
+            if choice == 'm':
+                while True: # Cikls, kamēr ievadīs pareizi
+                    try:
+                        new_price = float(input(f"Ievadi jaunu cenu: ").replace(',', '.'))
+                        if new_price > 0:
+                            price = new_price
+                            set_price(name, price)
+                            print(f"✓ Cena atjaunināta: {name} → {price:.2f} EUR")
+                            break
+                        print("Kļūda! Cenu nevar iestatīt uz 0 vai negatīvu!")
+                    except ValueError:
+                        print("Kļūda! Lūdzu, ievadiet skaitli!")
+        else:
+            while True:
+                try:
+                    print(f"Cena precei '{name}' nav zināma.")
+                    new_price = float(input(f"Ievadi cenu: ").replace(',', '.'))
+                    if new_price > 0:
+                        price = new_price
+                        set_price(name, price)
+                        print(f"✓ Cena saglabāta: {name} ({price:.2f} EUR)")
+                        break
+                    print("Kļūda! Cenai jābūt lielākai par 0!")
+                except ValueError:
+                    print("Kļūda! Lūdzu, ievadiet skaitli!")    
+ 
         add_item(items, name, qty, price)       # Izsaucam pievienošanas funkciju  
 
     elif command == "list":
@@ -68,8 +109,6 @@ def main():
         count = len(items)
         count_items = count_units(items)
         print(f"Kopā: {total_amount:.2f} EUR ({count_items} vienības, {count} produkti)")
-
-        # Kopā: 6.60 EUR (5 vienības, 2 produkti)
 
     elif command == "clear":
         items = []              # Izveidojam tukšu sarakstu
