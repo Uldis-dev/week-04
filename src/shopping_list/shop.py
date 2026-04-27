@@ -1,21 +1,27 @@
 import sys
 from storage import load_list, save_list
+from utils import count_units, calc_line_total, calc_grand_total
 
-def add_item(items, name, price):
+def add_item(items, name, qty, price):
     """
     Pievieno jaunu produktu sarakstam un saglabā izmaiņas failā.
     
     Args:
     items(list): Esošais iepirkumu saraksts.
     name(str): Produkta nosaukums.
+    qty(float): Produkta daudzums.
     price(str/float): Produkta cena.
     
     Returns:
     None
     """
-    items.append({"name": name, "price": price})
+    new_item = {"name": name, "qty": qty, "price": price}
+    items.append(new_item)
     save_list(items)
-    print(f"✓ Pievienots: {name} ({price}) EUR")
+    line_total = calc_line_total(new_item)
+    print(f"✓ Pievienots: {name} x {qty} ({float(price):.2f} EUR/gab.) = {line_total:.2f} EUR")
+
+    # ✓ Pievienots: Maize × 3 (1.20 EUR/gab.) = 3.60 EUR
 
 def show_list(items):
     """
@@ -33,28 +39,10 @@ def show_list(items):
 
     print("Iepirkumu saraksts:")
     for i, item in enumerate(items, 1):
-        print(f"  {i}. {item['name']} - {item['price']} EUR")
+        line_total = calc_line_total(item)
+        print(f"  {i}. {item['name']} x {item['qty']} - {float(item['price']):.2f} EUR/gab. - {line_total:.2f} EUR")
 
-def get_total(items):
-    """
-    Aprēķina visu sarakstā esošo produktu kopsummu.
-    
-    Args:
-    items(list): Iepirkumu saraksts.
-    
-    Returns:
-    float: Kopējā summa EUR.
-    """
-    total = 0.0
-    for item in items:
-        # Pārvēršam cenu par float, lai varētu saskaitīt
-        # Ja 1. etapā cena ir teksts, šeit mēs to uz mirkli pārvēršam skaitlī
-        try:
-            total += float(item['price'])
-        except ValueError:
-            # Ja cena nav skaitlis, to ignorējam, lai programma nesalūztu
-            continue
-    return total
+        # 1. Maize × 3 — 1.20 EUR/gab. — 3.60 EUR
 
 def main():
     items = load_list()                 # Izsaucam datu ielādes funkciju
@@ -66,18 +54,22 @@ def main():
 
     command = sys.argv[1].lower()    
 
-    if command == "add" and len(sys.argv) == 4:
+    if command == "add" and len(sys.argv) == 5:
         name = sys.argv[2]
-        price = sys.argv[3] 
-        add_item(items, name, price)       # Izsaucam pievienošanas funkciju  
+        qty = sys.argv[3] 
+        price = sys.argv[4] 
+        add_item(items, name, qty, price)       # Izsaucam pievienošanas funkciju  
 
     elif command == "list":
         show_list(items)        # Izsaucam izvades funkciju
 
     elif command == "total":
-        total_amount = get_total(items)
+        total_amount = calc_grand_total(items)
         count = len(items)
-        print(f"Kopā: {total_amount:.2f} EUR ({count} produkti)")
+        count_items = count_units(items)
+        print(f"Kopā: {total_amount:.2f} EUR ({count_items} vienības, {count} produkti)")
+
+        # Kopā: 6.60 EUR (5 vienības, 2 produkti)
 
     elif command == "clear":
         items = []              # Izveidojam tukšu sarakstu
