@@ -43,6 +43,50 @@ def save_list(shopping_list, shopping_file="shopping.json"):
         json.dump(shopping_list, file, ensure_ascii=False, indent=4) #pārveido json formātā    
 
 
+def load_prices(prices_file="prices.json"):
+    """
+    Nolasa prices.json, atgriež vārdnīcu. Ja fails neeksistē — atgriež tukšu sarakstu{}
+    
+    Args:
+    prices_file(str): Ceļš līdz JSON failam, kurā glabājas cenu saraksts.
+    
+    Returns:
+    list: Iepirkumu saraksts (saraksts ar vārdnīcām) vai [] ja fails neeksistē.
+
+    Example:
+    >>> load_list('neeksistejos_fails.json')
+    []
+    >>> load_list('prices_file.json')
+    [{"name": "Maize", "price": 1.20}]
+    """
+    if not os.path.exists(prices_file):
+        return {}
+    with open(prices_file, 'r', encoding='utf-8') as file:
+        try:
+            return json.load(file)
+        except json.JSONDecodeError:
+            return {}        
+
+def save_prices(prices, prices_file="prices.json"):
+    """Saglabā cenu vārdnīcu JSON failā."""
+    with open(prices_file, 'w', encoding='utf-8') as file:
+        json.dump(prices, file, ensure_ascii=False, indent=4)
+
+def get_price(name):
+    """Atgriež cenu no prices.json vai None, ja prece nav atrasta."""
+    prices = load_prices()
+    return prices.get(name)
+
+def set_price(name, price):
+    """Saglabā vai atjaunina cenu cenu datubāzē."""
+    prices = load_prices()
+    try:
+        prices[name] = float(price)
+        save_prices(prices)
+        return True
+    except ValueError:
+        return False        
+
 if __name__ == "__main__":
     # Šis bloks kalpo tikai ātrai pašpārbaudei
     test_data = [{"name": "Testa Maize", "price": 1.50}]
